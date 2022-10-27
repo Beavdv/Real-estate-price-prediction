@@ -77,6 +77,18 @@ def new_col_price(col):
         return 'between 2000000 and 1500000'
     if col >= 1000000:
         return 'between 100000 and 1500000'
+    if col >= 900000:
+        return 'between 800000 and 9000000'
+    if col >= 800000:
+        return 'between 700000 and 8000000'
+    if col >= 700000:
+        return 'between 600000 and 7000000'
+    if col >= 600000:
+        return 'between 500000 and 6000000'
+    if col >= 500000:
+        return 'between 500000 and 1000000'
+    if col >= 400000:
+        return 'between 500000 and 1000000'
     if col >= 500000:
         return 'between 500000 and 1000000'
     if col >= 400000:
@@ -90,9 +102,9 @@ def new_col_price(col):
     if col < 100000:
         return 'below 100000'
 
-df['price_cat'] =pd.DataFrame(df['price'].apply(new_col_price))
+#df['price_cat'] =pd.DataFrame(df['price'].apply(new_col_price))
 
-df=pd.get_dummies(df, columns=['price_cat'], prefix='price_cat')
+#df=pd.get_dummies(df, columns=['price_cat'], prefix='price_cat')
 df=pd.get_dummies(df, columns=['province'], prefix='province')
 df=pd.get_dummies(df, columns=['KitchenType'], prefix='KitchenType')
 df=pd.get_dummies(df, columns=['Building condition'], prefix='Building condition')
@@ -103,6 +115,7 @@ df=pd.get_dummies(df, columns=['subtype'], prefix='subtype')
 #train the model
 #which data to use from the dataframe
 X = df.drop('price', axis=1)
+#X = df.drop('price_cat', axis=1)
 y = df["price"]
 #split the datat
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -118,10 +131,12 @@ print(
   'mean_absolute_error : ', mean_absolute_error(y_test, y_pred))
 print(regressor.score(X_test, y_test))
 
-# mean_squared_error :  20251370708.133804
-# mean_absolute_error :  57818.857299287
-# 0.9186563305378553  (overfitting?)
+print(y_pred)
 
+#mean_absolute_error :  198903.36425042638
+# 0.45410222435550085
+# [806749.20980879 507320.48402716 690871.48964179 ... 281807.22708865
+#  117937.62974191 614173.13048954]
 
 
 
