@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -16,41 +15,29 @@ df.dropna(subset=['Energy Consumption Level', 'zip'], inplace=True)
 df.drop(df[df['type'] == 'apartmentgroup'].index, inplace=True)
 df.drop(df[df['type'] == 'housegroup'].index, inplace=True)
 
-df['Condition is Newly Built'] = df['Condition is Newly Built'].replace(['1.'], ['1'])
+#change/ preprocess/ fillin data
+df['Condition is Newly Built'] = df['Condition is Newly Built'].replace(['1.'], [1])
 df['Condition is Newly Built'] = df['Condition is Newly Built'].fillna(0)
 df['KitchenType'] = df['KitchenType'].fillna('notinstalled')
 df['Building condition'] = df['Building condition'].fillna('torenovate')
 df['energy_heatingType'] = df['energy_heatingType'].fillna('varied')
 df['Land surface'] = df['Land surface'].fillna(0)
 df['Attic Exists'] = df['Attic Exists'].fillna(0)
-df['Attic Exists'] = df['Attic Exists'].replace(['True'],['1'])
+df['Attic Exists'] = df['Attic Exists'].replace([True],[1])
 df['Basement Exists'] = df['Basement Exists'].fillna(0)
-df['Basement Exists'] = df['Basement Exists'].replace(['True'],['1'])
+df['Basement Exists'] = df['Basement Exists'].replace([True],[1])
 df['Garden surface'] = df['Garden surface'].fillna(0)
 df['Outdoor terrace exists'] = df['Outdoor terrace exists'].fillna(0)
-df['Outdoor terrace exists'] = df['Outdoor terrace exists'].replace(['True'],['1'])
+df['Outdoor terrace exists'] = df['Outdoor terrace exists'].replace([True],[1])
 df['Wellness Equipment Swimming Pool'] = df['Wellness Equipment Swimming Pool'].fillna(0)
-df['Wellness Equipment Swimming Pool'] = df['Wellness Equipment Swimming Pool'].replace(['True'],['1'])
+df['Wellness Equipment Swimming Pool'] = df['Wellness Equipment Swimming Pool'].replace([True],[1])
 df['Parking parking Space Count indoor'] = df['Parking parking Space Count indoor'].fillna(0)
-df['Parking parking Space Count indoor'] = df['Parking parking Space Count indoor'].replace(['True'],['1'])
+df['Parking parking Space Count indoor'] = df['Parking parking Space Count indoor'].replace([True],[1])
 df['Parking SpaceCount outdoor'] = df['Parking SpaceCount outdoor'].fillna(0)
-df['Parking SpaceCount outdoor'] = df['Parking SpaceCount outdoor'].replace(['True'],['1'])
+df['Parking SpaceCount outdoor'] = df['Parking SpaceCount outdoor'].replace([True],[1])
 
-print(df['Wellness Equipment Swimming Pool'].unique())
-
-#df.drop('KitchenType', axis=1, inplace=True)
-# for row in df:
-#     if df['land surface'].isna():
-#         df.loc[df['type'] == 'apartement', 'land surface'] =
+print(df['Condition is Newly Built'].unique())
 print(df.isnull().sum().to_string())
-
-#print(df['constructionYear'].unique())
-#print(df['constructionYear'].value_counts('').to_string())
-#print(df.to_string())
-#df = df.replace(np.nan, 0)
-#print(df['Condition is Newly Built'].unique())
-#change/ preprocess data
-
 
 df['zip'] = df['zip'].astype('int')
 def new_col_provinces(col):
@@ -113,6 +100,7 @@ df=pd.get_dummies(df, columns=['energy_heatingType'], prefix='energy_heatingType
 df=pd.get_dummies(df, columns=['type'], prefix='type')
 df=pd.get_dummies(df, columns=['subtype'], prefix='subtype')
 
+#train the model
 X = df.drop('price', axis=1)
 y = df["price"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
