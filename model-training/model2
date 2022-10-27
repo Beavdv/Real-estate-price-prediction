@@ -1,0 +1,13 @@
+
+def clean_data()
+    df = pd.read_csv('original1.csv')
+    df.drop('Specificities SME office exists', axis=1, inplace=True)
+    df.drop('Transaction Type', axis=1, inplace=True)
+    df.drop('constructionYear', axis=1, inplace=True)
+    df.drop('date', axis=1, inplace=True)
+    df = df[~df['price'].str.contains('-')]
+    df.dropna(subset=['Energy Consumption Level', 'zip'], inplace=True)
+    df.drop(df[df['type'] == 'apartmentgroup'].index, inplace=True)
+    df.drop(df[df['type'] == 'housegroup'].index, inplace=True)
+
+

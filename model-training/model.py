@@ -101,11 +101,14 @@ df=pd.get_dummies(df, columns=['type'], prefix='type')
 df=pd.get_dummies(df, columns=['subtype'], prefix='subtype')
 
 #train the model
+#which data to use from the dataframe
 X = df.drop('price', axis=1)
 y = df["price"]
+#split the datat
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 regressor=LinearRegression()
 regressor.fit(X_train, y_train)
+#test the model
 y_pred = regressor.predict(X_test)
 df_preds = pd.DataFrame({'Price': y_test.squeeze(), 'Predicted Price': y_pred.squeeze()})
 
@@ -114,6 +117,11 @@ print(
 print(
   'mean_absolute_error : ', mean_absolute_error(y_test, y_pred))
 print(regressor.score(X_test, y_test))
+
+# mean_squared_error :  20251370708.133804
+# mean_absolute_error :  57818.857299287
+# 0.9186563305378553  (overfitting?)
+
 
 
 
