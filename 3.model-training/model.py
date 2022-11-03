@@ -115,7 +115,6 @@ df=pd.get_dummies(df, columns=['subtype'], prefix='subtype')
 #train the model
 #which data to use from the dataframe
 X = df.drop('price', axis=1)
-#X = df.drop('price_cat', axis=1)
 y = df["price"]
 #split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
