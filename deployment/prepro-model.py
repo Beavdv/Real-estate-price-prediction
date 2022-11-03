@@ -1,10 +1,16 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+import joblib
 
 #clean data
-df = pd.read_csv('original1.csv')
+df = pd.read_csv('original2.csv')
 df.isnull().sum()
 df.drop('Specificities SME office exists', axis=1, inplace=True)
 df.drop('Transaction Type', axis=1, inplace=True)
@@ -15,29 +21,26 @@ df.dropna(subset=['Energy Consumption Level', 'zip'], inplace=True)
 df.drop(df[df['type'] == 'apartmentgroup'].index, inplace=True)
 df.drop(df[df['type'] == 'housegroup'].index, inplace=True)
 
-#change/ preprocess/ fillin data
+#change/ preprocess/ filling data
 df['Condition is Newly Built'] = df['Condition is Newly Built'].replace(['1.'], [1])
 df['Condition is Newly Built'] = df['Condition is Newly Built'].fillna(0)
 df['KitchenType'] = df['KitchenType'].fillna('notinstalled')
-df['Building condition'] = df['Building condition'].fillna('torenovate')
+df['Building_condition'] = df['Building_condition'].fillna('torenovate')
 df['energy_heatingType'] = df['energy_heatingType'].fillna('varied')
-df['Land surface'] = df['Land surface'].fillna(0)
-df['Attic Exists'] = df['Attic Exists'].fillna(0)
-df['Attic Exists'] = df['Attic Exists'].replace([True],[1])
-df['Basement Exists'] = df['Basement Exists'].fillna(0)
-df['Basement Exists'] = df['Basement Exists'].replace([True],[1])
-df['Garden surface'] = df['Garden surface'].fillna(0)
-df['Outdoor terrace exists'] = df['Outdoor terrace exists'].fillna(0)
-df['Outdoor terrace exists'] = df['Outdoor terrace exists'].replace([True],[1])
+df['Land_surface'] = df['Land_surface'].fillna(0)
+df['Attic_Exists'] = df['Attic_Exists'].fillna(0)
+df['Attic_Exists'] = df['Attic_Exists'].replace([True], [1])
+df['Basement_Exists'] = df['Basement_Exists'].fillna(0)
+df['Basement_Exists'] = df['Basement_Exists'].replace([True],[1])
+df['Garden_surface'] = df['Garden_surface'].fillna(0)
+df['Outdoor_terrace_exists'] = df['Outdoor_terrace_exists'].fillna(0)
+df['Outdoor_terrace_exists'] = df['Outdoor_terrace_exists'].replace([True],[1])
 df['Wellness Equipment Swimming Pool'] = df['Wellness Equipment Swimming Pool'].fillna(0)
 df['Wellness Equipment Swimming Pool'] = df['Wellness Equipment Swimming Pool'].replace([True],[1])
-df['Parking parking Space Count indoor'] = df['Parking parking Space Count indoor'].fillna(0)
-df['Parking parking Space Count indoor'] = df['Parking parking Space Count indoor'].replace([True],[1])
+df['Parking Space Count indoor'] = df['Parking Space Count indoor'].fillna(0)
+df['Parking Space Count indoor'] = df['Parking Space Count indoor'].replace([True],[1])
 df['Parking SpaceCount outdoor'] = df['Parking SpaceCount outdoor'].fillna(0)
 df['Parking SpaceCount outdoor'] = df['Parking SpaceCount outdoor'].replace([True],[1])
-
-print(df['Condition is Newly Built'].unique())
-print(df.isnull().sum().to_string())
 
 df['zip'] = df['zip'].astype('int')
 def new_col_provinces(col):
@@ -102,268 +105,40 @@ def new_col_price(col):
     if col < 100000:
         return 'below 100000'
 
-#df['price_cat'] =pd.DataFrame(df['price'].apply(new_col_price))
+df['price_cat'] =pd.DataFrame(df['price'].apply(new_col_price))
 
-#df=pd.get_dummies(df, columns=['price_cat'], prefix='price_cat')
-df=pd.get_dummies(df, columns=['province'], prefix='province')
-df=pd.get_dummies(df, columns=['KitchenType'], prefix='KitchenType')
-df=pd.get_dummies(df, columns=['Building condition'], prefix='Building condition')
-df=pd.get_dummies(df, columns=['energy_heatingType'], prefix='energy_heatingType')
-df=pd.get_dummies(df, columns=['type'], prefix='type')
-df=pd.get_dummies(df, columns=['subtype'], prefix='subtype')
-
-#train the model
-#which data to use from the dataframe
-X = df.drop('price', axis=1)
-#X = df.drop('price_cat', axis=1)
+X = df.drop('price_cat', axis=1)
+X= X.drop('price', axis=1)
+X= X.drop('zip', axis=1)
+X=X.drop('id',axis=1)
 y = df["price"]
-#split the data
+print(X.columns)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-regressor=LinearRegression()
-regressor.fit(X_train, y_train)
-#test the model
+X_col_names = list(X_train.columns)
+feature_names = X_col_names
+categorical_features=["type", "subtype", 'KitchenType','Building_condition',
+                  'energy_heatingType','Attic_Exists','Basement_Exists','Outdoor_terrace_exists',
+                  'Wellness Equipment Swimming Pool','Condition is Newly Built','province']
+numerical_features=['Energy Consumption Level', 'bedroom_count', 'Land_surface', 'Garden_surface',
+                        'Parking Space Count indoor','Parking SpaceCount outdoor']
+transformer = ColumnTransformer( transformers=[
+        ('imputer', SimpleImputer(fill_value='missing'),numerical_features ),
+        ('scaler', StandardScaler(),numerical_features),
+        ('onehot', OneHotEncoder(drop='first',handle_unknown='ignore'),categorical_features)])
+regressor = Pipeline(steps=[("preprocessor", transformer), ("model", LinearRegression())])
+regressor.fit(X_train,y_train)
+    #test the model
 y_pred = regressor.predict(X_test)
+    # save the model to disk
+filename = 'finalized_model.sav'
+joblib.dump(regressor, filename)
+
+#test the model
 df_preds = pd.DataFrame({'Price': y_test.squeeze(), 'Predicted Price': y_pred.squeeze()})
-
-print(
-  'mean_squared_error : ', mean_squared_error(y_test, y_pred))
-print(
-  'mean_absolute_error : ', mean_absolute_error(y_test, y_pred))
+print('mean_squared_error : ', mean_squared_error(y_test, y_pred))
+print('mean_absolute_error : ', mean_absolute_error(y_test, y_pred))
 print(regressor.score(X_test, y_test))
-
 print(y_pred)
-
-#mean_absolute_error :  198903.36425042638
-# 0.45410222435550085   is the outcome
-# [806749.20980879 507320.48402716 690871.48964179 ... 281807.22708865
-#  117937.62974191 614173.13048954]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
