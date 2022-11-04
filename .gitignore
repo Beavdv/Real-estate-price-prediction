@@ -1,5 +1,8 @@
 /deployment/venv/
 /data-analysis/.ipynb_checkpoints/
-/data-analysis/.ipynb_checkpoints/
+
 /deployment/.idea/
 /2.data-analysis/.ipynb_checkpoints/
+/4.API deployment/venv/
+/4.API deployment/template/
+/4.API deployment/.idea/

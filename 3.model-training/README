@@ -1,0 +1,21 @@
+The real estate company "ImmoEliza" wants to establish itself as the biggest one in all of Belgium. To pursue this goal, it needs to create a machine learning model to predict prices on
+Belgium's sales. That way, they can pick out the properties that are the most valuable to them.
+
+Data Cleaning/Preprocessing
+different libraries used
+   pandas
+   sklearn.model_selection--train_test_split
+   sklearn.linear_model--LinearRegression
+   sklearn.metrics--mean_squared_error, mean_absolute_error
+
+to mold the data used get_dummies put to 0 and 1's
+and in the second version the pipeline with  onehotencoder and imputer and scaler
+
+
+model with linear regression with a outcome of 0.45
+
+
+
+
+
+

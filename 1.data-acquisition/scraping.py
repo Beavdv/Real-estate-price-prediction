@@ -1,8 +1,5 @@
-from bs4 import BeautifulSoup
-from lxml import etree
 from usp.tree import sitemap_tree_for_homepage
 import requests
-from csv import writer
 import pandas as pd
 from bs4 import BeautifulSoup
 import json
