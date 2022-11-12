@@ -1,4 +1,3 @@
-from usp.tree import sitemap_tree_for_homepage
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -6,6 +5,8 @@ import json
 import flatdict
 import re
 from pprint import pprint
+from usp.tree import sitemap_tree_for_homepage
+
 
 url=str("https://www.immoweb.be/")
 substring1=str("https://www.immoweb.be/nl/zoekertje") 
@@ -26,7 +27,7 @@ def get_links_from_sitemap(url=str, substring1=str):
 
 def get_properties_from_link(urls_final):
     #go over the links in the list and get the content for each link
-    final_file = "final.csv"
+    #final_file = "final.csv"
     script={}
     #open a writeable file
     with open(r'./data_acquisition/final.csv', 'w')as final_file:
@@ -46,7 +47,7 @@ def get_properties_from_link(urls_final):
             result=result.group(1)
             #load string with json to make a usable dictionary and flatten it=because the result is dict in dict 
             json_string=json.loads(result)
-            dict_property =  dict(flatdict.FlatDict(json_string, delimiter='_'))
+            dict_property = dict(flatdict.FlatDict(json_string, delimiter='_'))
             #dump it with json in a file 
             final_file.write(json.dumps(dict_property))
             df=pd.DataFrame(dict_property)
