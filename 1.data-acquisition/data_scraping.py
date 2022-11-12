@@ -69,9 +69,9 @@ def get_properties_from_link():
 get_properties_from_link()
 
 
-# def get_charateristics_for_properties():
-#     strmatch=get_links_from_sitemap(homepage_url='https://www.immoweb.be/')
-#     get_properties_from_link(strmatch)
+def get_charateristics_for_properties():
+    strmatch=get_links_from_sitemap(homepage_url='https://www.immoweb.be/')
+    get_properties_from_link(strmatch)
 
 
 #get_charateristics_for_properties()
